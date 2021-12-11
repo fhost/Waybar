@@ -2,6 +2,38 @@
 #include <fmt/format.h>
 #include <util/command.hpp>
 
+namespace {
+
+std::string getFormat(const Json::Value &config, const std::string& type,
+                      bool alt, const std::string &default_format,
+                      const std::string &extra, const std::string &state)
+{
+  const auto extra_suffix = (extra.empty() ? "" : "-" + extra);
+  const auto state_suffix = (state.empty() ? "" : "-" + state);
+  const auto base = (alt ? type + "-alt" : type);
+
+  if (config[base + extra_suffix + state_suffix].isString()) {
+    return config[base + extra_suffix + state_suffix].asString();
+  }
+  if (config[base + extra_suffix].isString()) {
+    return config[base + extra_suffix].asString();
+  }
+  if (config[base + state_suffix].isString()) {
+    return  config[base + state_suffix].asString();
+  }
+  if (config[base].isString()) {
+    return config[base].asString();
+  }
+
+  if (alt) {
+    // Use "default" format in case there is no "alt" version.
+    return ::getFormat(config, type, false, default_format, extra, state);
+  }
+  return default_format;
+}
+
+}
+
 namespace waybar {
 
 ALabel::ALabel(const Json::Value& config, const std::string& name, const std::string& id,
@@ -144,4 +176,13 @@ std::string ALabel::getState(uint8_t value, bool lesser) {
   return valid_state;
 }
 
+std::string ALabel::getFormat(const std::string& type,
+                              const std::string& default_format,
+                              const std::string& extra,
+                              const std::string& state)
+{
+  return ::getFormat(config_, type, alt_, default_format, extra, state);
+}
+
 }  // namespace waybar
+
