@@ -44,8 +44,7 @@ ALabel::ALabel(const Json::Value& config, const std::string& name, const std::st
       interval_(config_["interval"] == "once"
                     ? std::chrono::seconds(100000000)
                     : std::chrono::seconds(
-                          config_["interval"].isUInt() ? config_["interval"].asUInt() : interval)),
-      default_format_(format_) {
+                          config_["interval"].isUInt() ? config_["interval"].asUInt() : interval)) {
   label_.set_name(name);
   if (!id.empty()) {
     label_.get_style_context()->add_class(id);
@@ -138,11 +137,6 @@ std::string ALabel::getIcon(uint16_t percentage, const std::vector<std::string>&
 bool waybar::ALabel::handleToggle(GdkEventButton* const& e) {
   if (config_["format-alt-click"].isUInt() && e->button == config_["format-alt-click"].asUInt()) {
     alt_ = !alt_;
-    if (alt_ && config_["format-alt"].isString()) {
-      format_ = config_["format-alt"].asString();
-    } else {
-      format_ = default_format_;
-    }
   }
   return AModule::handleToggle(e);
 }

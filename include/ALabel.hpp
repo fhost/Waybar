@@ -21,7 +21,6 @@ class ALabel : public AModule {
   std::string                format_;
   const std::chrono::seconds interval_;
   bool                       alt_ = false;
-  std::string                default_format_;
 
   virtual bool        handleToggle(GdkEventButton *const &e);
   virtual std::string getState(uint8_t value, bool lesser = false);
