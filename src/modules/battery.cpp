@@ -292,26 +292,16 @@ auto waybar::modules::Battery::update() -> void {
   std::transform(status.begin(), status.end(), status.begin(), [](char ch) {
     return ch == ' ' ? '-' : std::tolower(ch);
   });
-  auto format = format_;
   auto state = getState(capacity, true);
   auto time_remaining_formatted = formatTimeRemaining(time_remaining);
   if (tooltipEnabled()) {
+    auto tooltip_format = getFormat("tooltip-format", "{timeTo}", status, state);
     std::string tooltip_text_default;
-    std::string tooltip_format = "{timeTo}";
     if (time_remaining != 0) {
       std::string time_to = std::string("Time to ") + ((time_remaining > 0) ? "empty" : "full");
       tooltip_text_default = time_to + ": " + time_remaining_formatted;
     } else {
       tooltip_text_default = status_pretty;
-    }
-    if (!state.empty() && config_["tooltip-format-" + status + "-" + state].isString()) {
-      tooltip_format = config_["tooltip-format-" + status + "-" + state].asString();
-    } else if (config_["tooltip-format-" + status].isString()) {
-      tooltip_format = config_["tooltip-format-" + status].asString();
-    } else if (!state.empty() && config_["tooltip-format-" + state].isString()) {
-      tooltip_format = config_["tooltip-format-" + state].asString();
-    } else if (config_["tooltip-format"].isString()) {
-      tooltip_format = config_["tooltip-format"].asString();
     }
     label_.set_tooltip_text(fmt::format(tooltip_format,
                                         fmt::arg("timeTo", tooltip_text_default),
@@ -323,13 +313,7 @@ auto waybar::modules::Battery::update() -> void {
   }
   label_.get_style_context()->add_class(status);
   old_status_ = status;
-  if (!state.empty() && config_["format-" + status + "-" + state].isString()) {
-    format = config_["format-" + status + "-" + state].asString();
-  } else if (config_["format-" + status].isString()) {
-    format = config_["format-" + status].asString();
-  } else if (!state.empty() && config_["format-" + state].isString()) {
-    format = config_["format-" + state].asString();
-  }
+  auto format = getFormat("format", "{capacity}%", status, state);
   if (format.empty()) {
     event_box_.hide();
   } else {

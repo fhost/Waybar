@@ -303,29 +303,9 @@ auto waybar::modules::Network::update() -> void {
     bandwidth_up_total_ = up_octets;
   }
 
-  if (!alt_) {
-    auto state = getNetworkState();
-    if (!state_.empty() && label_.get_style_context()->has_class(state_)) {
-      label_.get_style_context()->remove_class(state_);
-    }
-    if (config_["format-" + state].isString()) {
-      default_format_ = config_["format-" + state].asString();
-    } else if (config_["format"].isString()) {
-      default_format_ = config_["format"].asString();
-    } else {
-      default_format_ = DEFAULT_FORMAT;
-    }
-    if (config_["tooltip-format-" + state].isString()) {
-      tooltip_format = config_["tooltip-format-" + state].asString();
-    }
-    if (!label_.get_style_context()->has_class(state)) {
-      label_.get_style_context()->add_class(state);
-    }
-    format_ = default_format_;
-    state_ = state;
-  }
-  getState(signal_strength_);
-
+  auto network_state = getNetworkState();
+  auto state = getState(signal_strength_);
+  format_ = getFormat("format", DEFAULT_FORMAT, network_state, state);
   auto text = fmt::format(
       format_,
       fmt::arg("essid", essid_),
@@ -351,9 +331,7 @@ auto waybar::modules::Network::update() -> void {
     }
   }
   if (tooltipEnabled()) {
-    if (tooltip_format.empty() && config_["tooltip-format"].isString()) {
-      tooltip_format = config_["tooltip-format"].asString();
-    }
+    tooltip_format = getFormat("tooltip-format", "", network_state, state);
     if (!tooltip_format.empty()) {
       auto tooltip_text = fmt::format(
           tooltip_format,
