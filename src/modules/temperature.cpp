@@ -1,8 +1,23 @@
 #include "modules/temperature.hpp"
 #include <filesystem>
 
+namespace {
+
+auto getMaxTemperature(const Json::Value &config) {
+  if (config["max-temperature"].isInt()) {
+    return config["max-temperature"].asInt();
+  }
+  if (config.isMember("states") && config["states"]["critical"].isInt()) {
+    return config["states"]["critical"].asInt();
+  }
+  return 100;
+}
+
+}
+
 waybar::modules::Temperature::Temperature(const std::string& id, const Json::Value& config)
-    : ALabel(config, "temperature", id, "{temperatureC}°C", 10) {
+    : ALabel(config, "temperature", id, "{temperatureC}°C", 10)
+    , max_temperature_(::getMaxTemperature(config)) {
   if (config_["hwmon-path"].isString()) {
     file_path_ = config_["hwmon-path"].asString();
   } else if (config_["hwmon-path-abs"].isString() && config_["input-filename"].isString()) {
@@ -26,25 +41,15 @@ auto waybar::modules::Temperature::update() -> void {
   uint16_t temperature_c = std::round(temperature);
   uint16_t temperature_f = std::round(temperature * 1.8 + 32);
   uint16_t temperature_k = std::round(temperature + 273.15);
-  auto critical = isCritical(temperature_c);
-  auto format = format_;
-  if (critical) {
-    format = config_["format-critical"].isString() ? config_["format-critical"].asString() : format;
-    label_.get_style_context()->add_class("critical");
-  } else {
-    label_.get_style_context()->remove_class("critical");
-  }
-  auto max_temp = config_["critical-threshold"].isInt() ? config_["critical-threshold"].asInt() : 0;
+  auto state = getState(temperature_c);
+  auto format = getFormat("format", "{temperatureC}°C", state);
   label_.set_markup(fmt::format(format,
                                 fmt::arg("temperatureC", temperature_c),
                                 fmt::arg("temperatureF", temperature_f),
                                 fmt::arg("temperatureK", temperature_k),
-                                fmt::arg("icon", getIcon(temperature_c, "", max_temp))));
+                                fmt::arg("icon", getIcon(temperature_c, "", max_temperature_))));
   if (tooltipEnabled()) {
-    std::string tooltip_format = "{temperatureC}°C";
-    if (config_["tooltip-format"].isString()) {
-      tooltip_format = config_["tooltip-format"].asString();
-    }
+    auto tooltip_format = getFormat("tooltip-format", "{temperatureC}°C", state);
     label_.set_tooltip_text(fmt::format(tooltip_format,
                                 fmt::arg("temperatureC", temperature_c),
                                 fmt::arg("temperatureF", temperature_f),
@@ -66,9 +71,4 @@ float waybar::modules::Temperature::getTemperature() {
   temp.close();
   auto                           temperature_c = std::strtol(line.c_str(), nullptr, 10) / 1000.0;
   return temperature_c;
-}
-
-bool waybar::modules::Temperature::isCritical(uint16_t temperature_c) {
-  return config_["critical-threshold"].isInt() &&
-         temperature_c >= config_["critical-threshold"].asInt();
 }

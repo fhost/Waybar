@@ -15,8 +15,8 @@ class Temperature : public ALabel {
 
  private:
   float               getTemperature();
-  bool                isCritical(uint16_t);
 
+  int                 max_temperature_;
   std::string         file_path_;
   util::SleeperThread thread_;
 };
