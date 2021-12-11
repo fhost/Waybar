@@ -26,8 +26,8 @@ class ALabel : public AModule {
   virtual std::string getState(uint8_t value, bool lesser = false);
   virtual std::string getFormat(const std::string& type,
                                 const std::string& default_format,
-                                const std::string& extra,
-                                const std::string& state);
+                                const std::string& extra = "",
+                                const std::string& state = "");
 };
 
 }  // namespace waybar
