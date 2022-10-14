@@ -375,7 +375,7 @@ struct RawSurfaceImpl : public BarSurface, public sigc::trackable {
         layer_surface_.get(), margins_.top, margins_.right, margins_.bottom, margins_.left);
 
     setSurfaceSize(width_, height_);
-    setExclusiveZone(exclusive_zone_);
+    //setExclusiveZone(exclusive_zone_);
     setPassThrough(passthrough_);
 
     commit();
@@ -452,7 +452,7 @@ struct RawSurfaceImpl : public BarSurface, public sigc::trackable {
       o->height_ = height;
       o->window_.set_size_request(o->width_, o->height_);
       o->window_.resize(o->width_, o->height_);
-      o->setExclusiveZone(o->exclusive_zone_);
+      //o->setExclusiveZone(o->exclusive_zone_);
       spdlog::info(BAR_SIZE_MSG,
                    o->width_ == 1 ? "auto" : std::to_string(o->width_),
                    o->height_ == 1 ? "auto" : std::to_string(o->height_),
@@ -642,7 +642,7 @@ void waybar::Bar::setMode(const std::string_view& mode) {
 
 void waybar::Bar::setMode(const struct bar_mode& mode) {
   surface_impl_->setLayer(mode.layer);
-  surface_impl_->setExclusiveZone(mode.exclusive);
+  //surface_impl_->setExclusiveZone(mode.exclusive);
   surface_impl_->setPassThrough(mode.passthrough);
 
   if (mode.visible) {

@@ -4,7 +4,7 @@ option('libudev', type: 'feature', value: 'auto', description: 'Enable libudev s
 option('libevdev', type: 'feature', value: 'auto', description: 'Enable libevdev support for evdev related features')
 option('pulseaudio', type: 'feature', value: 'auto', description: 'Enable support for pulseaudio')
 option('systemd', type: 'feature', value: 'auto', description: 'Install systemd user service unit')
-option('dbusmenu-gtk', type: 'feature', value: 'auto', description: 'Enable support for tray')
+option('dbusmenu-gtk', type: 'feature', value: 'disabled', description: 'Enable support for tray')
 option('man-pages', type: 'feature', value: 'auto', description: 'Generate and install man pages')
 option('mpd', type: 'feature', value: 'auto', description: 'Enable support for the Music Player Daemon')
 option('gtk-layer-shell', type: 'feature', value: 'auto', description: 'Use gtk-layer-shell library for popups support')
